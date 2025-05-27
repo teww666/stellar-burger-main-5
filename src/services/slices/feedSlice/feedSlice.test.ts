@@ -1,6 +1,20 @@
 import feedSlice, { getFeeds, initialState } from './feedSlice';
 
 describe('тестирование редьюсера feedSlice', () => {
+  const testAsyncAction = (
+    action: {
+      type: string;
+      payload?: any;
+      error?: { message: string };
+    },
+    expectations: (state: any) => void
+  ) => {
+    test(`тест синхронного экшена ${action.type}`, () => {
+      const state = feedSlice(initialState, action);
+      expectations(state);
+    });
+  };
+
   describe('тестирование асинхронного GET экшена getFeeds', () => {
     const actions = {
       pending: {
@@ -17,22 +31,19 @@ describe('тестирование редьюсера feedSlice', () => {
       }
     };
 
-    test('тест синхронного экшена getFeeds.pending', () => {
-      const state = feedSlice(initialState, actions.pending);
+    testAsyncAction(actions.pending, (state) => {
       expect(state.loading).toBe(true);
       expect(state.error).toBe(actions.pending.payload);
     });
 
-    test('тест синхронного экшена getFeeds.rejected', () => {
-      const state = feedSlice(initialState, actions.rejected);
+    testAsyncAction(actions.rejected, (state) => {
       expect(state.loading).toBe(false);
       expect(state.error).toBe(actions.rejected.error.message);
     });
 
-    test('тест синхронного экшена getFeeds.fulfilled', () => {
-      const nextState = feedSlice(initialState, actions.fulfilled);
-      expect(nextState.loading).toBe(false);
-      expect(nextState.orders).toEqual(actions.fulfilled.payload.orders);
+    testAsyncAction(actions.fulfilled, (state) => {
+      expect(state.loading).toBe(false);
+      expect(state.orders).toEqual(actions.fulfilled.payload.orders);
     });
   });
 });

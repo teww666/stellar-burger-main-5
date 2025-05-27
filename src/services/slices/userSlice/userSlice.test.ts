@@ -1,3 +1,4 @@
+import { AsyncThunk } from '@reduxjs/toolkit';
 import userSlice, {
   getUser,
   getOrdersAll,
@@ -5,8 +6,40 @@ import userSlice, {
   registerUser,
   loginUser,
   updateUser,
-  logoutUser
+  logoutUser,
+  TUserState
 } from './userSlice';
+
+const testAsyncAction = (
+  actionCreator: AsyncThunk<any, any, any>,
+  actions: {
+    pending: { type: string; payload: null };
+    rejected: { type: string; error?: { message: string }; payload?: null };
+    fulfilled: { type: string; payload: any };
+  },
+  expectations: {
+    pending: (state: TUserState) => void;
+    rejected: (state: TUserState) => void;
+    fulfilled: (state: TUserState) => void;
+  }
+) => {
+  describe(`тестирование асинхронного экшена ${actionCreator.typePrefix}`, () => {
+    test('pending', () => {
+      const state = userSlice(initialState, actions.pending);
+      expectations.pending(state);
+    });
+
+    test('rejected', () => {
+      const state = userSlice(initialState, actions.rejected);
+      expectations.rejected(state);
+    });
+
+    test('fulfilled', () => {
+      const state = userSlice(initialState, actions.fulfilled);
+      expectations.fulfilled(state);
+    });
+  });
+};
 
 describe('тестирование редьюсера userSlice', () => {
   describe('тестирование асинхронного GET экшена getUser', () => {

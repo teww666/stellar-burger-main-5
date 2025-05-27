@@ -1,6 +1,16 @@
 import store, { rootReducer } from '../services/store';
 
-test('проверка работы rootReducer', () => {
-  const expected = rootReducer(undefined, { type: 'UNKNOWN_ACTION' });
-  expect(expected).toEqual(store.getState());
+describe('Store tests', () => {
+  it('should properly handle rootReducer', () => {
+    // Get expected state from reducer
+    const expectedState = rootReducer(undefined, { 
+      type: 'UNKNOWN_ACTION' 
+    });
+    
+    // Get actual state from store
+    const actualState = store.getState();
+    
+    // Compare states
+    expect(expectedState).toEqual(actualState);
+  });
 });

@@ -4,6 +4,20 @@ import ingredientSlice, {
 } from './ingredientSlice';
 
 describe('тестирование редьюсера ingredientSlice', () => {
+  const testAsyncAction = (
+    action: {
+      type: string;
+      payload?: any;
+      error?: { message: string };
+    },
+    expectations: (state: any) => void
+  ) => {
+    test(`тест синхронного экшена ${action.type}`, () => {
+      const state = ingredientSlice(initialState, action);
+      expectations(state);
+    });
+  };
+
   describe('тестирование асинхронного GET экшена getIngredients', () => {
     const actions = {
       pending: {
@@ -20,22 +34,19 @@ describe('тестирование редьюсера ingredientSlice', () => {
       }
     };
 
-    test('тест синхронного экшена getIngredients.pending', () => {
-      const state = ingredientSlice(initialState, actions.pending);
+    testAsyncAction(actions.pending, (state) => {
       expect(state.loading).toBe(true);
       expect(state.error).toBe(actions.pending.payload);
     });
 
-    test('тест синхронного экшена getIngredients.rejected', () => {
-      const state = ingredientSlice(initialState, actions.rejected);
-      expect(state.loading).toBe(false);
+    testAsyncAction(actions.rejected, (state) => {
+      expect(state.loading).toBe(false); 
       expect(state.error).toBe(actions.rejected.error.message);
     });
 
-    test('тест синхронного экшена getIngredients.fulfilled', () => {
-      const nextState = ingredientSlice(initialState, actions.fulfilled);
-      expect(nextState.loading).toBe(false);
-      expect(nextState.ingredients).toEqual(actions.fulfilled.payload);
+    testAsyncAction(actions.fulfilled, (state) => {
+      expect(state.loading).toBe(false);
+      expect(state.ingredients).toEqual(actions.fulfilled.payload);
     });
   });
 });
