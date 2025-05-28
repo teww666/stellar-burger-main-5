@@ -1,14 +1,13 @@
-import orderSlice, { initialState, getOrderByNumber } from './orderSlice';
+import orderSlice, { initialState, getOrderByNumber, TOrderState } from './orderSlice';
 import { AsyncThunk } from '@reduxjs/toolkit';
-import { TOrderState } from './orderSlice';
 
 describe('тестирование редьюсера orderSlice', () => {
   const testAsyncAction = (
     actionCreator: AsyncThunk<any, any, any>,
     actions: {
       pending: { type: string; payload: null };
-      rejected: { type: string; error: { message: string } };
-      fulfilled: { type: string; payload: { orders: string[] } };
+      rejected: { type: string; error?: { message: string }; payload?: null };
+      fulfilled: { type: string; payload: any };
     },
     expectations: {
       pending: (state: TOrderState) => void;

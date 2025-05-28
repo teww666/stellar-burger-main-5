@@ -1,4 +1,4 @@
-import feedSlice, { getFeeds, initialState } from './feedSlice';
+import feedSlice, { getFeeds, initialState, TFeedState } from './feedSlice';
 
 describe('тестирование редьюсера feedSlice', () => {
   const testAsyncAction = (
@@ -7,7 +7,7 @@ describe('тестирование редьюсера feedSlice', () => {
       payload?: any;
       error?: { message: string };
     },
-    expectations: (state: any) => void
+    expectations: (state: TFeedState) => void
   ) => {
     test(`тест синхронного экшена ${action.type}`, () => {
       const state = feedSlice(initialState, action);
@@ -27,13 +27,17 @@ describe('тестирование редьюсера feedSlice', () => {
       },
       fulfilled: {
         type: getFeeds.fulfilled.type,
-        payload: { orders: ['order1', 'order2'] }
+        payload: { 
+          orders: ['order1', 'order2'],
+          total: 2,
+          totalToday: 1
+        }
       }
     };
 
     testAsyncAction(actions.pending, (state) => {
       expect(state.loading).toBe(true);
-      expect(state.error).toBe(actions.pending.payload);
+      expect(state.error).toBe(null);
     });
 
     testAsyncAction(actions.rejected, (state) => {
@@ -43,7 +47,10 @@ describe('тестирование редьюсера feedSlice', () => {
 
     testAsyncAction(actions.fulfilled, (state) => {
       expect(state.loading).toBe(false);
+      expect(state.error).toBe(null);
       expect(state.orders).toEqual(actions.fulfilled.payload.orders);
+      expect(state.total).toBe(actions.fulfilled.payload.total);
+      expect(state.totalToday).toBe(actions.fulfilled.payload.totalToday);
     });
   });
 });

@@ -1,6 +1,7 @@
 import ingredientSlice, {
   getIngredients,
-  initialState
+  initialState,
+  TIngredientState
 } from './ingredientSlice';
 
 describe('тестирование редьюсера ingredientSlice', () => {
@@ -10,7 +11,7 @@ describe('тестирование редьюсера ingredientSlice', () => {
       payload?: any;
       error?: { message: string };
     },
-    expectations: (state: any) => void
+    expectations: (state: TIngredientState) => void
   ) => {
     test(`тест синхронного экшена ${action.type}`, () => {
       const state = ingredientSlice(initialState, action);
@@ -36,7 +37,7 @@ describe('тестирование редьюсера ingredientSlice', () => {
 
     testAsyncAction(actions.pending, (state) => {
       expect(state.loading).toBe(true);
-      expect(state.error).toBe(actions.pending.payload);
+      expect(state.error).toBe(null);
     });
 
     testAsyncAction(actions.rejected, (state) => {

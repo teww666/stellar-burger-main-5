@@ -1,16 +1,24 @@
-import store, { rootReducer } from '../services/store';
+import store, { rootReducer } from './store';
+import { initialState as ingredientInitialState } from './slices/ingredientSlice/ingredientSlice';
+import { initialState as orderInitialState } from './slices/orderSlice/orderSlice';
+import { initialState as constructorInitialState } from './slices/constructorSlice/constructorSlice';
+import { initialState as feedInitialState } from './slices/feedSlice/feedSlice';
+import { initialState as userInitialState } from './slices/userSlice/userSlice';
 
 describe('Store tests', () => {
   it('should properly handle rootReducer', () => {
-    // Get expected state from reducer
-    const expectedState = rootReducer(undefined, { 
-      type: 'UNKNOWN_ACTION' 
-    });
+    const expectedState = {
+      ingredient: ingredientInitialState,
+      order: orderInitialState,
+      constructorBurger: constructorInitialState,
+      feed: feedInitialState,
+      user: userInitialState
+    };
     
     // Get actual state from store
     const actualState = store.getState();
     
     // Compare states
-    expect(expectedState).toEqual(actualState);
+    expect(actualState).toEqual(expectedState);
   });
 });

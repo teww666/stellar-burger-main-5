@@ -4,7 +4,8 @@ import constructorSlice, {
   moveIngredientDown,
   moveIngredientUp,
   orderBurger,
-  removeIngredient
+  removeIngredient,
+  TConsturctorState
 } from './constructorSlice';
 import { expect, test, describe } from '@jest/globals';
 
@@ -15,7 +16,7 @@ describe('тестирование редьюсера constructorSlice', () => {
       payload?: any;
       error?: { message: string };
     },
-    expectations: (state: any) => void
+    expectations: (state: TConsturctorState) => void
   ) => {
     test(`тест синхронного экшена ${action.type}`, () => {
       const state = constructorSlice(initialState, action);
@@ -24,17 +25,6 @@ describe('тестирование редьюсера constructorSlice', () => {
   };
 
   describe('тестирование экшена addIngredient', () => {
-    const initialState = {
-      constructorItems: {
-        bun: null,
-        ingredients: []
-      },
-      loading: false,
-      orderRequest: false,
-      orderModalData: null,
-      error: null
-    };
-
     const testIngredient = {
       _id: '643d69a5c3f7b9001cfa0943',
       name: 'Соус фирменный Space Sauce',
@@ -111,32 +101,31 @@ describe('тестирование редьюсера constructorSlice', () => {
   });
 
   describe('тестирование экшена removeIngredient', () => {
-    const initialState = {
+    const testIngredient = {
+      id: 'funny',
+      _id: '643d69a5c3f7b9001cfa0944',
+      name: 'Соус традиционный галактический',
+      type: 'sauce',
+      proteins: 42,
+      fat: 24,
+      carbohydrates: 42,
+      calories: 99,
+      price: 15,
+      image: 'https://code.s3.yandex.net/react/code/sauce-03.png',
+      image_mobile: 'https://code.s3.yandex.net/react/code/sauce-03-mobile.png',
+      image_large: 'https://code.s3.yandex.net/react/code/sauce-03-large.png'
+    };
+
+    const initialStateWithIngredient = {
+      ...initialState,
       constructorItems: {
-        bun: null,
-        ingredients: [{
-          id: 'funny',
-          _id: '643d69a5c3f7b9001cfa0944',
-          name: 'Соус традиционный галактический',
-          type: 'sauce',
-          proteins: 42,
-          fat: 24,
-          carbohydrates: 42,
-          calories: 99,
-          price: 15,
-          image: 'https://code.s3.yandex.net/react/code/sauce-03.png',
-          image_mobile: 'https://code.s3.yandex.net/react/code/sauce-03-mobile.png',
-          image_large: 'https://code.s3.yandex.net/react/code/sauce-03-large.png'
-        }]
-      },
-      loading: false,
-      orderRequest: false,
-      orderModalData: null,
-      error: null
+        ...initialState.constructorItems,
+        ingredients: [testIngredient]
+      }
     };
 
     test('удаление ингредиента из конструктора', () => {
-      const newState = constructorSlice(initialState, removeIngredient('funny'));
+      const newState = constructorSlice(initialStateWithIngredient, removeIngredient('funny'));
       expect(newState.constructorItems.ingredients).toEqual([]);
     });
   });
@@ -202,15 +191,12 @@ describe('тестирование редьюсера constructorSlice', () => {
       image_large: 'https://code.s3.yandex.net/react/code/bun-02-large.png'
     };
 
-    const initialState = {
+    const initialStateWithItems = {
+      ...initialState,
       constructorItems: {
         bun: testBun,
         ingredients: testIngredients
-      },
-      loading: false,
-      orderRequest: false,
-      orderModalData: null,
-      error: null
+      }
     };
 
     const expectedIngredients = [
@@ -220,12 +206,12 @@ describe('тестирование редьюсера constructorSlice', () => {
     ];
 
     test('перемещение ингредиента на позицию выше', () => {
-      const newState = constructorSlice(initialState, moveIngredientUp(2));
+      const newState = constructorSlice(initialStateWithItems, moveIngredientUp(2));
       expect(newState.constructorItems.ingredients).toEqual(expectedIngredients);
     });
 
     test('перемещение ингредиента на позицию ниже', () => {
-      const newState = constructorSlice(initialState, moveIngredientDown(1));
+      const newState = constructorSlice(initialStateWithItems, moveIngredientDown(1));
       expect(newState.constructorItems.ingredients).toEqual(expectedIngredients);
     });
   });
@@ -248,19 +234,25 @@ describe('тестирование редьюсера constructorSlice', () => {
 
     testAsyncAction(actions.pending, (state) => {
       expect(state.loading).toBe(true);
-      expect(state.error).toBe(actions.pending.payload);
+      expect(state.orderRequest).toBe(true);
+      expect(state.error).toBe(null);
     });
 
     testAsyncAction(actions.rejected, (state) => {
       expect(state.loading).toBe(false);
+      expect(state.orderRequest).toBe(false);
       expect(state.error).toBe(actions.rejected.error.message);
-      expect(state.orderModalData).toBe(null);
     });
 
     testAsyncAction(actions.fulfilled, (state) => {
       expect(state.loading).toBe(false);
+      expect(state.orderRequest).toBe(false);
       expect(state.error).toBe(null);
-      expect(state.orderModalData?.number).toBe(actions.fulfilled.payload.order.number);
+      expect(state.orderModalData).toEqual(actions.fulfilled.payload.order);
+      expect(state.constructorItems).toEqual({
+        bun: null,
+        ingredients: []
+      });
     });
   });
 });
